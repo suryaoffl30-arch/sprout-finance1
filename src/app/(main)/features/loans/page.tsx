@@ -1,10 +1,26 @@
+'use client';
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { PlusCircle, MoreVertical, DollarSign, Percent } from "lucide-react";
+import { PlusCircle, MoreVertical, DollarSign, Percent, Trash2, Edit } from "lucide-react";
+import { useState } from 'react';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
-const loans = [
+const initialLoans = [
     {
+        id: "1",
         name: "Student Loan",
         provider: "Sprout Education Finance",
         remainingBalance: 8500,
@@ -12,6 +28,7 @@ const loans = [
         interestRate: 4.5,
     },
     {
+        id: "2",
         name: "Car Loan",
         provider: "AutoLend Co.",
         remainingBalance: 12000,
@@ -19,6 +36,7 @@ const loans = [
         interestRate: 3.2,
     },
      {
+        id: "3",
         name: "Personal Loan",
         provider: "Growth Bank",
         remainingBalance: 1500,
@@ -27,8 +45,45 @@ const loans = [
     }
 ]
 
+type Loan = typeof initialLoans[0];
+
 export default function LoansPage() {
+  const [loans, setLoans] = useState(initialLoans);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [editingLoan, setEditingLoan] = useState<Loan | null>(null);
+
   const totalRemaining = loans.reduce((acc, loan) => acc + loan.remainingBalance, 0);
+
+  const handleDeleteLoan = (loanId: string) => {
+    setLoans(loans.filter(loan => loan.id !== loanId));
+  }
+
+  const handleSaveLoan = (loanData: Omit<Loan, 'id' | 'remainingBalance'> & { id?: string }) => {
+    if (editingLoan) {
+      // Edit
+      setLoans(loans.map(l => l.id === editingLoan.id ? { ...editingLoan, ...loanData, remainingBalance: loanData.totalAmount } : l));
+    } else {
+      // Add
+      const newLoan = { 
+        ...loanData, 
+        id: Date.now().toString(), 
+        remainingBalance: loanData.totalAmount 
+      };
+      setLoans([...loans, newLoan]);
+    }
+    setIsDialogOpen(false);
+    setEditingLoan(null);
+  };
+
+  const openEditDialog = (loan: Loan) => {
+    setEditingLoan(loan);
+    setIsDialogOpen(true);
+  }
+  
+  const openAddDialog = () => {
+    setEditingLoan(null);
+    setIsDialogOpen(true);
+  }
 
   return (
     <div className="p-4 md:p-6 space-y-6">
@@ -37,11 +92,19 @@ export default function LoansPage() {
           <h1 className="font-headline text-3xl font-bold">Loan Management</h1>
           <p className="text-muted-foreground">Track and manage your outstanding loans.</p>
         </div>
-        <Button size="sm" variant="outline">
+        <Button size="sm" variant="outline" onClick={openAddDialog}>
           <PlusCircle className="mr-2" />
           Add Loan
         </Button>
       </header>
+      
+      <LoanFormDialog 
+        isOpen={isDialogOpen}
+        onOpenChange={setIsDialogOpen}
+        onSave={handleSaveLoan}
+        loan={editingLoan}
+        onClose={() => setEditingLoan(null)}
+      />
 
       <Card>
         <CardHeader>
@@ -55,15 +118,15 @@ export default function LoansPage() {
 
       <div className="space-y-4">
         <h2 className="font-headline text-lg font-semibold">Your Loans</h2>
-        {loans.map((loan, index) => (
-            <LoanCard key={index} loan={loan} />
+        {loans.map((loan) => (
+            <LoanCard key={loan.id} loan={loan} onEdit={() => openEditDialog(loan)} onDelete={() => handleDeleteLoan(loan.id)} />
         ))}
       </div>
     </div>
   );
 }
 
-function LoanCard({ loan }: { loan: typeof loans[0] }) {
+function LoanCard({ loan, onEdit, onDelete }: { loan: Loan; onEdit: () => void; onDelete: () => void; }) {
     const progress = ((loan.totalAmount - loan.remainingBalance) / loan.totalAmount) * 100;
     return (
         <Card>
@@ -72,9 +135,23 @@ function LoanCard({ loan }: { loan: typeof loans[0] }) {
                     <CardTitle className="font-headline">{loan.name}</CardTitle>
                     <CardDescription>{loan.provider}</CardDescription>
                 </div>
-                <Button size="icon" variant="ghost">
-                    <MoreVertical className="h-4 w-4" />
-                </Button>
+                 <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                        <Button size="icon" variant="ghost">
+                            <MoreVertical className="h-4 w-4" />
+                        </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={onEdit}>
+                            <Edit className="mr-2 h-4 w-4" />
+                            <span>Edit</span>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={onDelete} className="text-destructive">
+                            <Trash2 className="mr-2 h-4 w-4" />
+                            <span>Delete</span>
+                        </DropdownMenuItem>
+                    </DropdownMenuContent>
+                </DropdownMenu>
             </CardHeader>
             <CardContent>
                 <div className="flex justify-between items-baseline">
@@ -96,3 +173,83 @@ function LoanCard({ loan }: { loan: typeof loans[0] }) {
         </Card>
     )
 }
+
+
+function LoanFormDialog({ isOpen, onOpenChange, onSave, loan, onClose }: { isOpen: boolean, onOpenChange: (open: boolean) => void, onSave: (data: any) => void, loan: Loan | null, onClose: () => void }) {
+  const [formData, setFormData] = useState({
+    name: '',
+    provider: '',
+    totalAmount: '',
+    interestRate: '',
+  });
+
+  useState(() => {
+    if (loan) {
+      setFormData({
+        name: loan.name,
+        provider: loan.provider,
+        totalAmount: loan.totalAmount.toString(),
+        interestRate: loan.interestRate.toString(),
+      });
+    } else {
+       setFormData({ name: '', provider: '', totalAmount: '', interestRate: '' });
+    }
+  });
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { id, value } = e.target;
+    setFormData(prev => ({ ...prev, [id]: value }));
+  };
+
+  const handleSubmit = () => {
+    onSave({
+      name: formData.name,
+      provider: formData.provider,
+      totalAmount: parseFloat(formData.totalAmount) || 0,
+      interestRate: parseFloat(formData.interestRate) || 0,
+    });
+  };
+
+  const handleOpenChange = (open: boolean) => {
+    if(!open) {
+      onClose();
+    }
+    onOpenChange(open);
+  }
+  
+  return (
+    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
+      <DialogContent className="sm:max-w-[425px]">
+        <DialogHeader>
+          <DialogTitle>{loan ? 'Edit Loan' : 'Add New Loan'}</DialogTitle>
+          <DialogDescription>
+            {loan ? "Update the details of your existing loan." : "Enter the details of your new loan to start tracking."}
+          </DialogDescription>
+        </DialogHeader>
+        <div className="grid gap-4 py-4">
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="name" className="text-right">Name</Label>
+            <Input id="name" value={formData.name} onChange={handleChange} className="col-span-3" placeholder="e.g. Student Loan" />
+          </div>
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="provider" className="text-right">Provider</Label>
+            <Input id="provider" value={formData.provider} onChange={handleChange} className="col-span-3" placeholder="e.g. Sprout Finance" />
+          </div>
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="totalAmount" className="text-right">Total Amount</Label>
+            <Input id="totalAmount" type="number" value={formData.totalAmount} onChange={handleChange} className="col-span-3" placeholder="e.g. 25000" />
+          </div>
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="interestRate" className="text-right">Interest Rate (%)</Label>
+            <Input id="interestRate" type="number" value={formData.interestRate} onChange={handleChange} className="col-span-3" placeholder="e.g. 4.5" />
+          </div>
+        </div>
+        <DialogFooter>
+          <Button type="submit" onClick={handleSubmit}>Save Loan</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  )
+}
+
+    
