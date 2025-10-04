@@ -60,7 +60,7 @@ export default function ProfilePage() {
         </CardContent>
       </Card>
       
-      <Link href="/login">
+      <Link href="/">
         <Button variant="destructive" className="w-full">
             <LogOut className="mr-2 h-4 w-4" /> Sign Out
         </Button>
