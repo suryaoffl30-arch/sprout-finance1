@@ -7,6 +7,9 @@ import { Switch } from "@/components/ui/switch";
 import { Bell, ChevronRight, CircleUserRound, FolderDown, LogOut, Palette, Shield } from "lucide-react";
 import Link from "next/link";
 import { useTheme } from "next-themes";
+import { useAuth, useUser } from '@/firebase';
+import { signOut } from "firebase/auth";
+import { useRouter } from "next/navigation";
 
 const settings = [
     { id: "theme", icon: Palette, title: "Theme", description: "Light / Dark Mode" },
@@ -17,6 +20,15 @@ const settings = [
 
 export default function ProfilePage() {
   const { theme, setTheme } = useTheme();
+  const auth = useAuth();
+  const { user } = useUser();
+  const router = useRouter();
+
+  const handleSignOut = () => {
+    signOut(auth).then(() => {
+        router.push('/');
+    });
+  }
 
   return (
     <div className="p-4 md:p-6 space-y-6">
@@ -27,12 +39,12 @@ export default function ProfilePage() {
       
       <div className="flex items-center gap-4">
         <Avatar className="h-16 w-16 border-2 border-primary">
-          <AvatarImage src="https://picsum.photos/seed/user/64/64" data-ai-hint="person face" />
-          <AvatarFallback>AD</AvatarFallback>
+          <AvatarImage src={user?.photoURL ?? "https://picsum.photos/seed/user/64/64"} data-ai-hint="person face" />
+          <AvatarFallback>{user?.displayName?.charAt(0) ?? user?.email?.charAt(0)?.toUpperCase() ?? 'U'}</AvatarFallback>
         </Avatar>
         <div>
-          <h2 className="text-xl font-bold font-headline">Alex Doe</h2>
-          <p className="text-sm text-muted-foreground">alex.doe@example.com</p>
+          <h2 className="text-xl font-bold font-headline">{user?.displayName ?? 'User'}</h2>
+          <p className="text-sm text-muted-foreground">{user?.email ?? 'No email'}</p>
         </div>
         <Button variant="ghost" size="icon" className="ml-auto"><CircleUserRound /></Button>
       </div>
@@ -60,11 +72,9 @@ export default function ProfilePage() {
         </CardContent>
       </Card>
       
-      <Link href="/">
-        <Button variant="destructive" className="w-full">
-            <LogOut className="mr-2 h-4 w-4" /> Sign Out
-        </Button>
-      </Link>
+      <Button variant="destructive" className="w-full" onClick={handleSignOut}>
+          <LogOut className="mr-2 h-4 w-4" /> Sign Out
+      </Button>
     </div>
   );
 }

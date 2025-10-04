@@ -1,3 +1,5 @@
+'use client';
+
 import Image from 'next/image';
 import Link from 'next/link';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
@@ -7,6 +9,11 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Logo } from '@/components/Logo';
 import { Smartphone } from 'lucide-react';
+import { initiateEmailSignIn, initiateEmailSignUp, initiateAnonymousSignIn } from '@/firebase/non-blocking-login';
+import { useAuth, useUser } from '@/firebase';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 
 function SvgGoogleIcon() {
   return (
@@ -33,6 +40,39 @@ function SvgGoogleIcon() {
 
 export default function LoginPage() {
   const bgImage = PlaceHolderImages.find((p) => p.id === 'login-background');
+  const auth = useAuth();
+  const { user, isUserLoading } = useUser();
+  const router = useRouter();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [isSigningIn, setIsSigningIn] = useState(true);
+
+  useEffect(() => {
+    if (!isUserLoading && user) {
+      router.push('/home');
+    }
+  }, [user, isUserLoading, router]);
+
+  const handleEmailAuth = () => {
+    if (isSigningIn) {
+      initiateEmailSignIn(auth, email, password);
+    } else {
+      initiateEmailSignUp(auth, email, password);
+    }
+  };
+  
+  const handleGoogleSignIn = () => {
+    const provider = new GoogleAuthProvider();
+    signInWithPopup(auth, provider);
+  };
+
+  const handleAnonymousSignIn = () => {
+    initiateAnonymousSignIn(auth);
+  };
+
+  if (isUserLoading || user) {
+    return <div className="flex h-screen w-full items-center justify-center">Loading...</div>;
+  }
 
   return (
     <div className="relative min-h-screen w-full">
@@ -54,18 +94,26 @@ export default function LoginPage() {
             <div className="mx-auto mb-4">
               <Logo />
             </div>
-            <CardTitle className="font-headline text-3xl">Welcome Back</CardTitle>
-            <CardDescription>Sign in to manage your finances and grow your wealth.</CardDescription>
+            <CardTitle className="font-headline text-3xl">{isSigningIn ? 'Welcome Back' : 'Create an Account'}</CardTitle>
+            <CardDescription>
+              {isSigningIn ? 'Sign in to manage your finances and grow your wealth.' : 'Get started with Sprout Finance.'}
+            </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="email" className="font-headline">
                 Email
               </Label>
-              <Input id="email" type="email" placeholder="name@example.com" />
+              <Input id="email" type="email" placeholder="name@example.com" value={email} onChange={(e) => setEmail(e.target.value)} />
             </div>
-            <Button className="w-full font-bold" asChild>
-              <Link href="/analysis">Continue with Email</Link>
+             <div className="space-y-2">
+              <Label htmlFor="password">
+                Password
+              </Label>
+              <Input id="password" type="password" placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} />
+            </div>
+            <Button className="w-full font-bold" onClick={handleEmailAuth}>
+              {isSigningIn ? 'Continue with Email' : 'Create Account'}
             </Button>
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
@@ -76,10 +124,8 @@ export default function LoginPage() {
               </div>
             </div>
             <div className="grid grid-cols-2 gap-2">
-              <Button variant="outline" className="w-full" asChild>
-                <Link href="/analysis">
+              <Button variant="outline" className="w-full" onClick={handleGoogleSignIn}>
                   <SvgGoogleIcon /> Google
-                </Link>
               </Button>
               <Button variant="outline" className="w-full" asChild>
                 <Link href="/analysis">
@@ -89,9 +135,14 @@ export default function LoginPage() {
             </div>
 
             <div className="mt-4 text-center text-sm">
-              <Link href="/analysis" className="underline text-muted-foreground hover:text-primary">
+                <Button variant="link" onClick={() => setIsSigningIn(!isSigningIn)} className="text-muted-foreground hover:text-primary">
+                  {isSigningIn ? "Don't have an account? Sign Up" : 'Already have an account? Sign In'}
+                </Button>
+            </div>
+             <div className="mt-4 text-center text-sm">
+              <Button variant="link" onClick={handleAnonymousSignIn} className="underline text-muted-foreground hover:text-primary">
                 Be My Guest
-              </Link>
+              </Button>
             </div>
           </CardContent>
         </Card>
