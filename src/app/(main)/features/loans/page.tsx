@@ -3,8 +3,8 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { PlusCircle, MoreVertical, DollarSign, Percent, Trash2, Edit } from "lucide-react";
-import { useState } from 'react';
+import { PlusCircle, MoreVertical, DollarSign, Percent, Trash2, Edit, CalendarIcon } from "lucide-react";
+import { useState, useEffect } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -12,11 +12,14 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { format } from "date-fns";
+import { cn } from "@/lib/utils";
 
 const initialLoans = [
     {
@@ -26,6 +29,7 @@ const initialLoans = [
         remainingBalance: 8500,
         totalAmount: 25000,
         interestRate: 4.5,
+        startDate: new Date("2022-08-01"),
     },
     {
         id: "2",
@@ -34,6 +38,7 @@ const initialLoans = [
         remainingBalance: 12000,
         totalAmount: 30000,
         interestRate: 3.2,
+        startDate: new Date("2023-01-15"),
     },
      {
         id: "3",
@@ -42,6 +47,7 @@ const initialLoans = [
         remainingBalance: 1500,
         totalAmount: 5000,
         interestRate: 7.1,
+        startDate: new Date("2023-11-10"),
     }
 ]
 
@@ -159,6 +165,7 @@ function LoanCard({ loan, onEdit, onDelete }: { loan: Loan; onEdit: () => void; 
                      <p className="text-xs text-muted-foreground">of ₹{loan.totalAmount.toLocaleString()}</p>
                 </div>
                 <Progress value={progress} className="mt-2 h-2" />
+                 <p className="text-xs text-muted-foreground mt-2">Started on: {format(loan.startDate, 'PPP')}</p>
             </CardContent>
             <CardFooter className="text-xs text-muted-foreground justify-between">
                  <div className="flex items-center gap-1">
@@ -181,25 +188,33 @@ function LoanFormDialog({ isOpen, onOpenChange, onSave, loan, onClose }: { isOpe
     provider: '',
     totalAmount: '',
     interestRate: '',
+    startDate: new Date(),
   });
 
-  useState(() => {
+  useEffect(() => {
     if (loan) {
       setFormData({
         name: loan.name,
         provider: loan.provider,
         totalAmount: loan.totalAmount.toString(),
         interestRate: loan.interestRate.toString(),
+        startDate: loan.startDate
       });
     } else {
-       setFormData({ name: '', provider: '', totalAmount: '', interestRate: '' });
+       setFormData({ name: '', provider: '', totalAmount: '', interestRate: '', startDate: new Date() });
     }
-  });
+  }, [loan, isOpen]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target;
     setFormData(prev => ({ ...prev, [id]: value }));
   };
+
+  const handleDateChange = (date: Date | undefined) => {
+    if (date) {
+      setFormData(prev => ({ ...prev, startDate: date }));
+    }
+  }
 
   const handleSubmit = () => {
     onSave({
@@ -207,6 +222,7 @@ function LoanFormDialog({ isOpen, onOpenChange, onSave, loan, onClose }: { isOpe
       provider: formData.provider,
       totalAmount: parseFloat(formData.totalAmount) || 0,
       interestRate: parseFloat(formData.interestRate) || 0,
+      startDate: formData.startDate,
     });
   };
 
@@ -242,6 +258,31 @@ function LoanFormDialog({ isOpen, onOpenChange, onSave, loan, onClose }: { isOpe
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="interestRate" className="text-right">Interest Rate (%)</Label>
             <Input id="interestRate" type="number" value={formData.interestRate} onChange={handleChange} className="col-span-3" placeholder="e.g. 4.5" />
+          </div>
+           <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="startDate" className="text-right">Start Date</Label>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant={"outline"}
+                  className={cn(
+                    "col-span-3 justify-start text-left font-normal",
+                    !formData.startDate && "text-muted-foreground"
+                  )}
+                >
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {formData.startDate ? format(formData.startDate, "PPP") : <span>Pick a date</span>}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0">
+                <Calendar
+                  mode="single"
+                  selected={formData.startDate}
+                  onSelect={handleDateChange}
+                  initialFocus
+                />
+              </PopoverContent>
+            </Popover>
           </div>
         </div>
         <DialogFooter>
