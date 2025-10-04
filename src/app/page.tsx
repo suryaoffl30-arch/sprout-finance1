@@ -14,6 +14,7 @@ import { useAuth, useUser } from '@/firebase';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import { useToast } from '@/hooks/use-toast';
 
 function SvgGoogleIcon() {
   return (
@@ -45,7 +46,9 @@ export default function LoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [isSigningIn, setIsSigningIn] = useState(true);
+  const { toast } = useToast();
 
   useEffect(() => {
     if (!isUserLoading && user) {
@@ -57,6 +60,14 @@ export default function LoginPage() {
     if (isSigningIn) {
       initiateEmailSignIn(auth, email, password);
     } else {
+      if (password !== confirmPassword) {
+        toast({
+          variant: "destructive",
+          title: "Passwords do not match",
+          description: "Please make sure your passwords match.",
+        });
+        return;
+      }
       initiateEmailSignUp(auth, email, password);
     }
   };
@@ -112,6 +123,14 @@ export default function LoginPage() {
               </Label>
               <Input id="password" type="password" placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} />
             </div>
+            {!isSigningIn && (
+              <div className="space-y-2">
+                <Label htmlFor="confirmPassword">
+                  Confirm Password
+                </Label>
+                <Input id="confirmPassword" type="password" placeholder="••••••••" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} />
+              </div>
+            )}
             <Button className="w-full font-bold" onClick={handleEmailAuth}>
               {isSigningIn ? 'Continue with Email' : 'Create Account'}
             </Button>
