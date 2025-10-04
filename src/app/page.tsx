@@ -64,7 +64,7 @@ export default function LoginPage() {
               </Label>
               <Input id="email" type="email" placeholder="name@example.com" />
             </div>
-            <Button asChild className="w-full font-bold">
+            <Button className="w-full font-bold" asChild>
               <Link href="/analysis">Continue with Email</Link>
             </Button>
             <div className="relative">
