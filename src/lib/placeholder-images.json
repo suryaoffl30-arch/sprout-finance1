@@ -1,3 +1,10 @@
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "login-background",
+      "description": "Nature-inspired growth imagery for the login screen background.",
+      "imageUrl": "https://images.unsplash.com/photo-1464858793397-c66d3e5a2e7a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxuYXR1cmUlMjBncm93dGh8ZW58MHx8fHwxNzU5NTg5MjQyfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "nature growth"
+    }
+  ]
 }
