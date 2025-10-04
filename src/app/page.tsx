@@ -64,11 +64,9 @@ export default function LoginPage() {
               </Label>
               <Input id="email" type="email" placeholder="name@example.com" />
             </div>
-            <Link href="/analysis" passHref legacyBehavior>
-              <Button asChild className="w-full font-bold">
-                <a>Continue with Email</a>
-              </Button>
-            </Link>
+            <Button asChild className="w-full font-bold">
+              <Link href="/analysis">Continue with Email</Link>
+            </Button>
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
                 <span className="w-full border-t" />
@@ -78,20 +76,16 @@ export default function LoginPage() {
               </div>
             </div>
             <div className="grid grid-cols-2 gap-2">
-              <Link href="/analysis" passHref legacyBehavior>
-                <Button variant="outline" className="w-full" asChild>
-                  <a>
-                    <SvgGoogleIcon /> Google
-                  </a>
-                </Button>
-              </Link>
-              <Link href="/analysis" passHref legacyBehavior>
-                <Button variant="outline" className="w-full" asChild>
-                  <a>
-                    <Smartphone className="mr-2 h-4 w-4" /> Phone
-                  </a>
-                </Button>
-              </Link>
+              <Button variant="outline" className="w-full" asChild>
+                <Link href="/analysis">
+                  <SvgGoogleIcon /> Google
+                </Link>
+              </Button>
+              <Button variant="outline" className="w-full" asChild>
+                <Link href="/analysis">
+                  <Smartphone className="mr-2 h-4 w-4" /> Phone
+                </Link>
+              </Button>
             </div>
 
             <div className="mt-4 text-center text-sm">
