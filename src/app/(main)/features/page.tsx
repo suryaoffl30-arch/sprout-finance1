@@ -43,7 +43,8 @@ const features = [
     {
         title: "Card Management",
         description: "Secure and manage your cards.",
-        icon: "/accounts",
+        icon: ShieldCheck,
+        href: "/accounts",
         status: "View"
     }
 ]
