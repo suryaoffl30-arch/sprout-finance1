@@ -50,10 +50,10 @@ function AnalysisContent({ period }: { period: string }) {
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium">Total Spends</CardTitle>
-          <span className="text-muted-foreground">$</span>
+          <span className="text-muted-foreground">₹</span>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">$4,295.30</div>
+          <div className="text-2xl font-bold">₹4,295.30</div>
           <p className="text-xs text-muted-foreground flex items-center">
             <span className={cn("flex items-center mr-1", isPositive ? "text-primary" : "text-destructive")}>
               {isPositive && <ArrowUp className="h-4 w-4" />}

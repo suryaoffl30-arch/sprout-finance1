@@ -34,9 +34,9 @@ export default function HomePage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-bold">$12,450.00</p>
+            <p className="text-2xl font-bold">₹12,450.00</p>
             <Progress value={60} className="mt-2 h-2" />
-            <p className="text-xs text-muted-foreground mt-1">60% of your $20,000 goal</p>
+            <p className="text-xs text-muted-foreground mt-1">60% of your ₹20,000 goal</p>
           </CardContent>
         </Card>
         <Card>
@@ -46,7 +46,7 @@ export default function HomePage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-bold">$5,800.00</p>
+            <p className="text-2xl font-bold">₹5,800.00</p>
             <Progress value={80} className="mt-2 h-2" />
             <p className="text-xs text-muted-foreground mt-1">80% of 3-month expenses covered</p>
           </CardContent>
@@ -58,8 +58,8 @@ export default function HomePage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-bold">$52,100.00</p>
-            <p className="text-xs text-muted-foreground mt-1">Projected to grow to $1.2M</p>
+            <p className="text-2xl font-bold">₹52,100.00</p>
+            <p className="text-xs text-muted-foreground mt-1">Projected to grow to ₹1.2M</p>
           </CardContent>
         </Card>
         <Card>
@@ -69,7 +69,7 @@ export default function HomePage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-bold">$8,500.00</p>
+            <p className="text-2xl font-bold">₹8,500.00</p>
             <p className="text-xs text-muted-foreground mt-1">Remaining balance</p>
           </CardContent>
         </Card>

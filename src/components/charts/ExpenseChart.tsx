@@ -38,7 +38,7 @@ export default function ExpenseChart() {
                 tickLine={false}
                 axisLine={false}
                 tickMargin={10}
-                tickFormatter={(value) => `$${value / 1000}k`}
+                tickFormatter={(value) => `₹${value / 1000}k`}
             />
             <ChartTooltip
                 cursor={false}

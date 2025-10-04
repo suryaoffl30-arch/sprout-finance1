@@ -25,14 +25,14 @@ export default function AccountsPage() {
             icon={<Landmark className="h-8 w-8 text-primary" />}
             name="Primary Savings"
             bank="Sprout Bank - 1234"
-            balance="$12,450.00"
+            balance="₹12,450.00"
           />
           <Separator />
           <AccountItem
             icon={<Banknote className="h-8 w-8 text-accent" />}
             name="Spending Account"
             bank="Growth Bank - 5678"
-            balance="$1,230.50"
+            balance="₹1,230.50"
           />
         </CardContent>
       </Card>

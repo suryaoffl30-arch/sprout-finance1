@@ -111,7 +111,7 @@ export default function LoansPage() {
             <CardTitle>Total Loan Balance</CardTitle>
         </CardHeader>
         <CardContent>
-            <p className="text-3xl font-bold">${totalRemaining.toLocaleString()}</p>
+            <p className="text-3xl font-bold">₹{totalRemaining.toLocaleString()}</p>
             <p className="text-sm text-muted-foreground">Across {loans.length} loans</p>
         </CardContent>
       </Card>
@@ -155,8 +155,8 @@ function LoanCard({ loan, onEdit, onDelete }: { loan: Loan; onEdit: () => void; 
             </CardHeader>
             <CardContent>
                 <div className="flex justify-between items-baseline">
-                     <p className="text-2xl font-bold">${loan.remainingBalance.toLocaleString()}</p>
-                     <p className="text-xs text-muted-foreground">of ${loan.totalAmount.toLocaleString()}</p>
+                     <p className="text-2xl font-bold">₹{loan.remainingBalance.toLocaleString()}</p>
+                     <p className="text-xs text-muted-foreground">of ₹{loan.totalAmount.toLocaleString()}</p>
                 </div>
                 <Progress value={progress} className="mt-2 h-2" />
             </CardContent>
@@ -167,7 +167,7 @@ function LoanCard({ loan, onEdit, onDelete }: { loan: Loan; onEdit: () => void; 
                 </div>
                  <div className="flex items-center gap-1">
                     <DollarSign className="h-3 w-3" />
-                    <span>${((loan.totalAmount - loan.remainingBalance)).toLocaleString()} paid</span>
+                    <span>₹{((loan.totalAmount - loan.remainingBalance)).toLocaleString()} paid</span>
                 </div>
             </CardFooter>
         </Card>
@@ -251,5 +251,3 @@ function LoanFormDialog({ isOpen, onOpenChange, onSave, loan, onClose }: { isOpe
     </Dialog>
   )
 }
-
-    

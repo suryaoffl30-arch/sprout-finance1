@@ -13,7 +13,7 @@ const chartData = [
 
 const chartConfig = {
   amount: {
-    label: 'Amount ($)',
+    label: 'Amount (₹)',
   },
   food: {
     label: 'Food',
@@ -72,7 +72,7 @@ export default function CategoryChart() {
           className="fill-foreground text-center"
         >
           <tspan x="50%" dy="-0.6em" className="text-2xl font-bold">
-            ${total.toLocaleString()}
+            ₹{total.toLocaleString()}
           </tspan>
           <tspan x="50%" dy="1.2em" className="text-xs text-muted-foreground">
             Total Spent
