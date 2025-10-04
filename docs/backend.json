@@ -217,7 +217,8 @@
   "auth": {
     "providers": [
       "password",
-      "anonymous"
+      "anonymous",
+      "google.com"
     ]
   },
   "firestore": {
@@ -342,3 +343,4 @@
     "reasoning": "The Firestore structure is designed to be secure, scalable, and debuggable, adhering to the principles of Authorization Independence, Clarity of Intent, DBAC (Database-Based Access Control), and QAPs (Rules are not Filters). It leverages Structural Segregation to ensure that all documents within a collection share the same security requirements, and Access Modeling to standardize authorization patterns.\n\n**Authorization Independence (Denormalization):**\nTo avoid hierarchical authorization dependencies (`get()` calls in rules), we denormalize authorization data. For example, if access to BankAccounts depended on user attributes, those attributes would be copied into each BankAccount document.  Since BankAccounts, Transactions, Loans and AiAdvice all depend on User ownership, the `userId` field is present in these documents, enforcing ownership. The Category documents can be global, so no specific authorization is required, assuming the app manages these categories.\n\n**Structural Segregation:**\nData with different access needs are segregated into different collections. User-specific data (BankAccounts, Transactions, Loans, AiAdvice) are stored under `/users/{userId}` to enforce private, path-based ownership.\n\n**Access Modeling:**\nPath-based ownership is used for private data.  The `/users/{userId}/bankAccounts/{bankAccountId}` pattern clearly establishes ownership.  The `userId` field is also included within the `bankAccounts` documents themselves for Authorization Independence.\n\n**QAPs (Rules are not Filters):**\nThe structure supports secure `list` operations by ensuring that rules can be written without needing to filter data.  For example, listing bank accounts under `/users/{userId}/bankAccounts` only returns the bank accounts owned by the user identified by `{userId}`, based on path.\n\nTo address the original error \"FirebaseError: Firebase: Error (auth/operation-not-allowed)\", this likely indicates an issue with Firebase Authentication configuration (e.g., email/password sign-in not enabled) or an attempt to perform an operation (e.g., creating a user) without proper permissions or configuration. This data structure does not directly fix it, but will help in debugging the rules once Authentication is appropriately configured."
   }
 }
+    
