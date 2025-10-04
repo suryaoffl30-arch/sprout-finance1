@@ -4,7 +4,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
-import { Bell, ChevronRight, CircleUserRound, FolderDown, LogOut, Palette, Shield, Mail, Phone, Plus, Coins } from "lucide-react";
+import { Bell, ChevronRight, CircleUserRound, FolderDown, LogOut, Palette, Shield, Mail, Phone, Plus, Coins, Star, Info, FileText, Send, MessageSquareQuestion, FileUp } from "lucide-react";
 import Link from "next/link";
 import { useTheme } from "next-themes";
 import { useAuth, useUser } from '@/firebase';
@@ -44,7 +44,16 @@ const settings = [
     { id: "currency", icon: Coins, title: "Currency Format", description: "Select your currency" },
     { id: "notifications", icon: Bell, title: "Notifications", description: "Manage alerts" },
     { id: "security", icon: Shield, title: "Security", description: "Password, 2FA" },
-    { id: "backup", icon: FolderDown, title: "Backup & Restore", description: "Google Drive sync" }
+    { id: "backup", icon: FolderDown, title: "Backup Data", description: "Google Drive sync" },
+    { id: "restore", icon: FileUp, title: "Restore Data", description: "From DOC or PDF backups" },
+];
+
+const aboutItems = [
+    { id: "rate", icon: Star, title: "Rate the App", description: "Share your feedback" },
+    { id: "about", icon: Info, title: "About App", description: "App version and details" },
+    { id: "privacy", icon: FileText, title: "Privacy Policies", description: "Read our policies" },
+    { id: "contact", icon: Send, title: "Contact Us", description: "Get in touch with support" },
+    { id: "faq", icon: MessageSquareQuestion, title: "Feedback and FAQs", description: "Find answers and give feedback" },
 ]
 
 export default function ProfilePage() {
@@ -161,6 +170,26 @@ export default function ProfilePage() {
           </ul>
         </CardContent>
       </Card>
+
+      <Card>
+        <CardContent className="p-0">
+           <ul className="divide-y">
+            {aboutItems.map((item) => (
+                <li key={item.title} className="p-4 flex items-center justify-between hover:bg-muted/50 transition-colors cursor-pointer">
+                    <div className="flex items-center gap-4">
+                        <item.icon className="h-5 w-5 text-muted-foreground" />
+                        <div>
+                            <p className="font-semibold">{item.title}</p>
+                            <p className="text-sm text-muted-foreground">{item.description}</p>
+                        </div>
+                    </div>
+                    <ChevronRight className="h-5 w-5 text-muted-foreground" />
+                </li>
+            ))}
+          </ul>
+        </CardContent>
+      </Card>
+
       <CurrencyDialog isOpen={isCurrencyDialogOpen} onOpenChange={setIsCurrencyDialogOpen} />
       
       <Button variant="destructive" className="w-full" onClick={handleSignOut}>
