@@ -4,11 +4,11 @@
       "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "User",
       "type": "object",
-      "description": "Represents a user in the Sprout Finance application.",
+      "description": "Represents a user of the Sprout Finance application.",
       "properties": {
         "id": {
           "type": "string",
-          "description": "Unique identifier for the user."
+          "description": "Unique identifier for the User entity."
         },
         "email": {
           "type": "string",
@@ -23,25 +23,15 @@
           "type": "string",
           "description": "User's Google ID (if signed up with Google)."
         },
-        "firstName": {
+        "createdAt": {
           "type": "string",
-          "description": "User's first name."
+          "description": "Timestamp indicating when the user account was created.",
+          "format": "date-time"
         },
-        "lastName": {
+        "updatedAt": {
           "type": "string",
-          "description": "User's last name."
-        },
-        "theme": {
-          "type": "string",
-          "description": "User's preferred theme (e.g., light, dark)."
-        },
-        "currencyFormat": {
-          "type": "string",
-          "description": "User's preferred currency format (e.g., USD, EUR)."
-        },
-        "notificationPreferences": {
-          "type": "string",
-          "description": "User's notification preferences (e.g., email, SMS)."
+          "description": "Timestamp indicating when the user account was last updated.",
+          "format": "date-time"
         }
       },
       "required": [
@@ -56,7 +46,7 @@
       "properties": {
         "id": {
           "type": "string",
-          "description": "Unique identifier for the bank account."
+          "description": "Unique identifier for the BankAccount entity."
         },
         "userId": {
           "type": "string",
@@ -68,15 +58,16 @@
         },
         "accountNumber": {
           "type": "string",
-          "description": "Bank account number."
+          "description": "Bank account number (masked or encrypted)."
         },
-        "debitCardNumber": {
+        "accountType": {
           "type": "string",
-          "description": "Debit card number associated with the account."
+          "description": "Type of bank account (e.g., checking, savings)."
         },
-        "balance": {
-          "type": "number",
-          "description": "Current balance of the bank account."
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp indicating when the bank account was linked.",
+          "format": "date-time"
         }
       },
       "required": [
@@ -92,32 +83,32 @@
       "properties": {
         "id": {
           "type": "string",
-          "description": "Unique identifier for the transaction."
+          "description": "Unique identifier for the Transaction entity."
         },
         "bankAccountId": {
           "type": "string",
           "description": "Reference to BankAccount. (Relationship: BankAccount 1:N Transaction)"
         },
-        "date": {
-          "type": "string",
-          "description": "Date of the transaction.",
-          "format": "date-time"
-        },
         "amount": {
           "type": "number",
           "description": "Amount of the transaction."
         },
-        "category": {
+        "transactionDate": {
           "type": "string",
-          "description": "Category of the transaction (e.g., Food, Shopping, Travel)."
+          "description": "Date of the transaction.",
+          "format": "date-time"
         },
         "description": {
           "type": "string",
           "description": "Description of the transaction."
         },
+        "categoryId": {
+          "type": "string",
+          "description": "Reference to Category. (Relationship: Category 1:N Transaction)"
+        },
         "transactionType": {
           "type": "string",
-          "description": "Type of transaction (income or expense)."
+          "description": "The transaction type, could be debit or credit"
         }
       },
       "required": [
@@ -125,15 +116,42 @@
         "bankAccountId"
       ]
     },
+    "Category": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Category",
+      "type": "object",
+      "description": "Represents a category for classifying transactions (e.g., Food, Shopping, Travel).",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Category entity."
+        },
+        "name": {
+          "type": "string",
+          "description": "Name of the category."
+        },
+        "description": {
+          "type": "string",
+          "description": "Description of the category."
+        },
+        "isIncome": {
+          "type": "boolean",
+          "description": "Flag indicating if the category is for income (true) or expense (false)."
+        }
+      },
+      "required": [
+        "id"
+      ]
+    },
     "Loan": {
       "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "Loan",
       "type": "object",
-      "description": "Represents a loan tracked by the user.",
+      "description": "Represents a loan taken by the user.",
       "properties": {
         "id": {
           "type": "string",
-          "description": "Unique identifier for the loan."
+          "description": "Unique identifier for the Loan entity."
         },
         "userId": {
           "type": "string",
@@ -149,7 +167,7 @@
         },
         "interestRate": {
           "type": "number",
-          "description": "Interest rate of the loan."
+          "description": "Annual interest rate of the loan."
         },
         "loanTermMonths": {
           "type": "number",
@@ -157,12 +175,8 @@
         },
         "startDate": {
           "type": "string",
-          "description": "Start date of the loan.",
+          "description": "Date when the loan was taken.",
           "format": "date-time"
-        },
-        "remainingBalance": {
-          "type": "number",
-          "description": "Remaining balance on the loan."
         }
       },
       "required": [
@@ -174,28 +188,24 @@
       "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "AiAdvice",
       "type": "object",
-      "description": "Represents financial advice provided by the AI.",
+      "description": "Stores AI generated financial advice for a given user.",
       "properties": {
         "id": {
           "type": "string",
-          "description": "Unique identifier for the advice."
+          "description": "Unique identifier for the AI advice."
         },
         "userId": {
           "type": "string",
           "description": "Reference to User. (Relationship: User 1:N AiAdvice)"
         },
-        "date": {
-          "type": "string",
-          "description": "Date the advice was generated.",
-          "format": "date-time"
-        },
         "adviceText": {
           "type": "string",
-          "description": "The text of the financial advice."
+          "description": "The AI generated financial advice."
         },
-        "category": {
+        "generatedAt": {
           "type": "string",
-          "description": "Category of the advice (e.g., budgeting, saving, investment)."
+          "description": "Timestamp of when the advice was generated.",
+          "format": "date-time"
         }
       },
       "required": [
@@ -207,8 +217,7 @@
   "auth": {
     "providers": [
       "password",
-      "anonymous",
-      "google.com"
+      "anonymous"
     ]
   },
   "firestore": {
@@ -220,11 +229,11 @@
           "schema": {
             "$ref": "#/backend/entities/User"
           },
-          "description": "Stores user profile information.  Path-based ownership enforced via the `userId` parameter.",
+          "description": "Stores user profile information. Uses path-based ownership, with '{userId}' corresponding to `request.auth.uid`.",
           "params": [
             {
               "name": "userId",
-              "description": "The unique identifier for the user."
+              "description": "The unique identifier for the user, matching the Firebase Auth UID."
             }
           ]
         }
@@ -236,11 +245,11 @@
           "schema": {
             "$ref": "#/backend/entities/BankAccount"
           },
-          "description": "Stores bank account information for a specific user. Includes denormalized 'userId' for authorization independence.",
+          "description": "Stores bank account information for a specific user. Includes 'userId' for authorization independence.  Path-based ownership enforced via `/users/{userId}`.",
           "params": [
             {
               "name": "userId",
-              "description": "The unique identifier for the user."
+              "description": "The unique identifier for the user, matching the Firebase Auth UID."
             },
             {
               "name": "bankAccountId",
@@ -256,11 +265,11 @@
           "schema": {
             "$ref": "#/backend/entities/Transaction"
           },
-          "description": "Stores transaction information for a specific bank account. Includes denormalized 'userId' for authorization independence.",
+          "description": "Stores transaction data for a specific bank account. Includes 'bankAccountId' and 'userId' for authorization independence, inheriting ownership from BankAccount.",
           "params": [
             {
               "name": "userId",
-              "description": "The unique identifier for the user."
+              "description": "The unique identifier for the user, matching the Firebase Auth UID."
             },
             {
               "name": "bankAccountId",
@@ -274,17 +283,33 @@
         }
       },
       {
+        "path": "/categories/{categoryId}",
+        "definition": {
+          "entityName": "Category",
+          "schema": {
+            "$ref": "#/backend/entities/Category"
+          },
+          "description": "Stores transaction categories. This collection is global; no specific authorization context is enforced at the path level.",
+          "params": [
+            {
+              "name": "categoryId",
+              "description": "The unique identifier for the category."
+            }
+          ]
+        }
+      },
+      {
         "path": "/users/{userId}/loans/{loanId}",
         "definition": {
           "entityName": "Loan",
           "schema": {
             "$ref": "#/backend/entities/Loan"
           },
-          "description": "Stores loan information for a specific user. Includes denormalized 'userId' for authorization independence.",
+          "description": "Stores loan information for a specific user. Includes 'userId' for authorization independence. Path-based ownership enforced via `/users/{userId}`.",
           "params": [
             {
               "name": "userId",
-              "description": "The unique identifier for the user."
+              "description": "The unique identifier for the user, matching the Firebase Auth UID."
             },
             {
               "name": "loanId",
@@ -300,11 +325,11 @@
           "schema": {
             "$ref": "#/backend/entities/AiAdvice"
           },
-          "description": "Stores AI-generated financial advice for a specific user. Includes denormalized 'userId' for authorization independence.",
+          "description": "Stores AI-generated financial advice for a specific user. Includes 'userId' for authorization independence. Path-based ownership enforced via `/users/{userId}`.",
           "params": [
             {
               "name": "userId",
-              "description": "The unique identifier for the user."
+              "description": "The unique identifier for the user, matching the Firebase Auth UID."
             },
             {
               "name": "aiAdviceId",
@@ -314,6 +339,6 @@
         }
       }
     ],
-    "reasoning": "The Firestore structure is designed to be secure, scalable, and easily debuggable, following the core design principles and strategy mandates. It avoids hierarchical authorization dependencies (`get()` calls) by denormalizing authorization data and uses structural segregation to ensure homogeneous security postures within collections. The structure utilizes path-based ownership and membership maps for access control, making security rules simple and efficient.\n\n**Authorization Independence:**  Each subcollection that depends on a parent's authorization context includes the necessary authorization data within its documents, removing the need for `get()` calls in security rules. For example, `bankAccounts` and all other entities have the `userId` denormalized into them, so we never have to traverse up the tree to validate ownership. This ensures that atomic operations are possible.\n\n**Structural Segregation:**  Each collection is dedicated to a specific entity type with consistent security requirements. This simplifies the rules and makes them more maintainable. For example, user data is stored under `/users/{userId}` to ensure that each document in this collection represents a single user's data.\n\n**QAPs Support:**  The structure supports secure `list` operations (QAPs) through path-based ownership. Since each user's data is stored under their own `userId`, listing bankAccounts, transactions, loans, and AI advice can be done securely by scoping the query to the specific user's path, e.g., `/users/{userId}/bankAccounts`.  This ensures that users can only list resources that belong to them.\n\n**Invariants:**  Ownership and timestamps are enforced through security rules, ensuring data integrity.  The `userId` field in subcollections ensures that each resource belongs to the correct user, and security rules can validate this on creation and modification."
+    "reasoning": "The Firestore structure is designed to be secure, scalable, and debuggable, adhering to the principles of Authorization Independence, Clarity of Intent, DBAC (Database-Based Access Control), and QAPs (Rules are not Filters). It leverages Structural Segregation to ensure that all documents within a collection share the same security requirements, and Access Modeling to standardize authorization patterns.\n\n**Authorization Independence (Denormalization):**\nTo avoid hierarchical authorization dependencies (`get()` calls in rules), we denormalize authorization data. For example, if access to BankAccounts depended on user attributes, those attributes would be copied into each BankAccount document.  Since BankAccounts, Transactions, Loans and AiAdvice all depend on User ownership, the `userId` field is present in these documents, enforcing ownership. The Category documents can be global, so no specific authorization is required, assuming the app manages these categories.\n\n**Structural Segregation:**\nData with different access needs are segregated into different collections. User-specific data (BankAccounts, Transactions, Loans, AiAdvice) are stored under `/users/{userId}` to enforce private, path-based ownership.\n\n**Access Modeling:**\nPath-based ownership is used for private data.  The `/users/{userId}/bankAccounts/{bankAccountId}` pattern clearly establishes ownership.  The `userId` field is also included within the `bankAccounts` documents themselves for Authorization Independence.\n\n**QAPs (Rules are not Filters):**\nThe structure supports secure `list` operations by ensuring that rules can be written without needing to filter data.  For example, listing bank accounts under `/users/{userId}/bankAccounts` only returns the bank accounts owned by the user identified by `{userId}`, based on path.\n\nTo address the original error \"FirebaseError: Firebase: Error (auth/operation-not-allowed)\", this likely indicates an issue with Firebase Authentication configuration (e.g., email/password sign-in not enabled) or an attempt to perform an operation (e.g., creating a user) without proper permissions or configuration. This data structure does not directly fix it, but will help in debugging the rules once Authentication is appropriately configured."
   }
 }

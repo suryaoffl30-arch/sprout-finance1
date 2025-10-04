@@ -1,123 +1,150 @@
+/**
+ * @fileoverview Firestore Security Rules for the Sprout Finance application.
+ *
+ * Core Philosophy:
+ * This ruleset enforces a strict user-ownership model for private data,
+ * ensuring that users can only access their own resources. Public data,
+ * such as transaction categories, is readable by all users.
+ *
+ * Data Structure:
+ * All user-specific data (BankAccounts, Transactions, Loans, AiAdvice) is nested
+ * under `/users/{userId}`.  This structure enforces path-based authorization.
+ *
+ * Key Security Decisions:
+ * - User listing is disallowed.
+ * - The `categories` collection is publicly readable but should be managed by
+ *   administrative functions (not covered in these rules).
+ * - All write operations on user-owned data require authentication and
+ *   ownership validation.
+ *
+ * Denormalization for Authorization:
+ * - The `userId` field is included in BankAccount, Transaction, Loan, and
+ *   AiAdvice documents to enable authorization independence and avoid costly
+ *   `get()` calls in security rules.
+ *
+ * Structural Segregation:
+ * - User-specific data is stored under the `/users/{userId}` path to ensure
+ *   private access, while global data (categories) resides in a separate
+ *   top-level collection with public read access.
+ */
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
     /**
-     * @description Ensures the user is signed in.
-     * @path N/A
-     * @allow N/A
-     * @deny N/A
-     * @principle Verifies user authentication.
-     */
-    function isSignedIn() {
-      return request.auth != null;
-    }
-
-    /**
-     * @description Checks if the requesting user is the owner of the resource.
-     * @path N/A
-     * @allow N/A
-     * @deny N/A
-     * @principle Enforces ownership-based access control.
-     */
-    function isOwner(userId) {
-      return request.auth.uid == userId;
-    }
-
-    /**
-     * @description Checks if the requesting user is the existing owner of the resource.
-     * @path N/A
-     * @allow N/A
-     * @deny N/A
-     * @principle Enforces existence and ownership for destructive operations.
-     */
-    function isExistingOwner(userId) {
-      return isOwner(userId) && resource.data != null;
-    }
-
-    /**
-     * @description Rules for user profile data.
+     * @description Enforces user-ownership for user profiles.
      * @path /users/{userId}
-     * @allow (create) If the authenticated user's UID matches the userId in the path.
-     * @allow (get, update, delete) If the authenticated user's UID matches the userId in the path.
-     * @deny (create) If the authenticated user's UID does not match the userId in the path.
-     * @deny (get, update, delete) If the authenticated user's UID does not match the userId in the path.
-     * @principle Enforces document ownership for all operations.
+     * @allow (create) Authenticated user creates their own profile with matching UID.
+     * @allow (get, update, delete) Authenticated user reads, updates, or deletes their own profile.
+     * @deny (create) Unauthenticated user attempts to create a profile.
+     * @deny (update, delete) Authenticated user attempts to modify or delete another user's profile.
+     * @principle Enforces document ownership for writes.
      */
     match /users/{userId} {
       allow get: if isOwner(userId);
-      allow list: if false;
-      allow create: if isSignedIn() && request.auth.uid == userId;
-      allow update: if isExistingOwner(userId);
-      allow delete: if isExistingOwner(userId);
+      allow list: if false; // User listing is not allowed
+
+      // Allow user to create their own profile if the userId matches their auth.uid
+      allow create: if isSignedIn() && isCreatingOwner(userId);
+      allow update: if isExistingOwner(userId) && isOwner(userId);
+      allow delete: if isExistingOwner(userId) && isOwner(userId);
     }
 
     /**
-     * @description Rules for bank account data within a user's profile.
+     * @description Enforces user-ownership for bank accounts.
      * @path /users/{userId}/bankAccounts/{bankAccountId}
-     * @allow (create) If the authenticated user's UID matches the userId in the path and the bankAccount's userId matches the path.
-     * @allow (get, list, update, delete) If the authenticated user's UID matches the userId in the path and the bankAccount's userId matches the path.
-     * @deny (create) If the authenticated user's UID does not match the userId in the path or the bankAccount's userId does not match the path.
-     * @deny (get, list, update, delete) If the authenticated user's UID does not match the userId in the path or the bankAccount's userId does not match the path.
-     * @principle Enforces document ownership and relational integrity.
+     * @allow (create) Authenticated user creates a bank account under their profile.
+     * @allow (get, update, delete) Authenticated user reads, updates, or deletes their own bank account.
+     * @deny (create) Unauthenticated user attempts to create a bank account.
+     * @deny (update, delete) Authenticated user attempts to modify or delete another user's bank account.
+     * @principle Enforces document ownership for writes and validates relational integrity.
      */
     match /users/{userId}/bankAccounts/{bankAccountId} {
       allow get: if isOwner(userId);
-      allow list: if false;
-      allow create: if isOwner(userId);
-      allow update: if isExistingOwner(userId);
-      allow delete: if isExistingOwner(userId);
+      allow list: if isOwner(userId);
+      allow create: if isSignedIn() && isOwner(userId) && request.resource.data.userId == userId;
+      allow update: if isExistingOwner(userId) && isOwner(userId) && resource.data.userId == userId;
+      allow delete: if isExistingOwner(userId) && isOwner(userId);
     }
 
     /**
-     * @description Rules for transaction data within a bank account.
+     * @description Enforces user-ownership for transactions.
      * @path /users/{userId}/bankAccounts/{bankAccountId}/transactions/{transactionId}
-     * @allow (create) If the authenticated user's UID matches the userId in the path and the transaction's bankAccountId matches the path.
-     * @allow (get, list, update, delete) If the authenticated user's UID matches the userId in the path and the transaction's bankAccountId matches the path.
-     * @deny (create) If the authenticated user's UID does not match the userId in the path or the transaction's bankAccountId does not match the path.
-     * @deny (get, list, update, delete) If the authenticated user's UID does not match the userId in the path or the transaction's bankAccountId does not match the path.
-     * @principle Enforces document ownership and relational integrity.
+     * @allow (create) Authenticated user creates a transaction under their bank account.
+     * @allow (get, update, delete) Authenticated user reads, updates, or deletes their own transaction.
+     * @deny (create) Unauthenticated user attempts to create a transaction.
+     * @deny (update, delete) Authenticated user attempts to modify or delete another user's transaction.
+     * @principle Enforces document ownership for writes and validates relational integrity.
      */
     match /users/{userId}/bankAccounts/{bankAccountId}/transactions/{transactionId} {
       allow get: if isOwner(userId);
-      allow list: if false;
-      allow create: if isOwner(userId);
-      allow update: if isExistingOwner(userId);
-      allow delete: if isExistingOwner(userId);
+      allow list: if isOwner(userId);
+      allow create: if isSignedIn() && isOwner(userId) && request.resource.data.bankAccountId == bankAccountId;
+      allow update: if isExistingOwner(userId) && isOwner(userId) && request.resource.data.bankAccountId == resource.data.bankAccountId;
+      allow delete: if isExistingOwner(userId) && isOwner(userId);
     }
 
     /**
-     * @description Rules for loan data within a user's profile.
-     * @path /users/{userId}/loans/{loanId}
-     * @allow (create) If the authenticated user's UID matches the userId in the path and the loan's userId matches the path.
-     * @allow (get, list, update, delete) If the authenticated user's UID matches the userId in the path and the loan's userId matches the path.
-     * @deny (create) If the authenticated user's UID does not match the userId in the path or the loan's userId does not match the path.
-     * @deny (get, list, update, delete) If the authenticated user's UID does not match the userId in the path or the loan's userId does not match the path.
-     * @principle Enforces document ownership and relational integrity.
+     * @description Allows public read access to transaction categories. Write operations should be managed via trusted server.
+     * @path /categories/{categoryId}
+     * @allow (get, list) Any user can read the categories.
+     * @deny (create, update, delete) No client-side write operations are allowed.
+     * @principle Public read access with restricted writes.
      */
+    match /categories/{categoryId} {
+      allow get, list: if true;
+      allow create, update, delete: if false;
+    }
+
+     /**
+      * @description Enforces user-ownership for loans.
+      * @path /users/{userId}/loans/{loanId}
+      * @allow (create) Authenticated user creates a loan under their profile.
+      * @allow (get, update, delete) Authenticated user reads, updates, or deletes their own loan.
+      * @deny (create) Unauthenticated user attempts to create a loan.
+      * @deny (update, delete) Authenticated user attempts to modify or delete another user's loan.
+      * @principle Enforces document ownership for writes and validates relational integrity.
+      */
     match /users/{userId}/loans/{loanId} {
       allow get: if isOwner(userId);
-      allow list: if false;
-      allow create: if isOwner(userId);
-      allow update: if isExistingOwner(userId);
-      allow delete: if isExistingOwner(userId);
+      allow list: if isOwner(userId);
+      allow create: if isSignedIn() && isOwner(userId) && request.resource.data.userId == userId;
+      allow update: if isExistingOwner(userId) && isOwner(userId) && resource.data.userId == userId;
+      allow delete: if isExistingOwner(userId) && isOwner(userId);
     }
 
     /**
-     * @description Rules for AI advice data within a user's profile.
+     * @description Enforces user-ownership for AI-generated advice.
      * @path /users/{userId}/aiAdvice/{aiAdviceId}
-     * @allow (create) If the authenticated user's UID matches the userId in the path and the advice's userId matches the path.
-     * @allow (get, list, update, delete) If the authenticated user's UID matches the userId in the path and the advice's userId matches the path.
-     * @deny (create) If the authenticated user's UID does not match the userId in the path or the advice's userId does not match the path.
-     * @deny (get, list, update, delete) If the authenticated user's UID does not match the userId in the path or the advice's userId does not match the path.
-     * @principle Enforces document ownership and relational integrity.
+     * @allow (create) Authenticated user creates AI advice under their profile.
+     * @allow (get, update, delete) Authenticated user reads, updates, or deletes their own AI advice.
+     * @deny (create) Unauthenticated user attempts to create AI advice.
+     * @deny (update, delete) Authenticated user attempts to modify or delete another user's AI advice.
+     * @principle Enforces document ownership for writes and validates relational integrity.
      */
     match /users/{userId}/aiAdvice/{aiAdviceId} {
       allow get: if isOwner(userId);
-      allow list: if false;
-      allow create: if isOwner(userId);
-      allow update: if isExistingOwner(userId);
-      allow delete: if isExistingOwner(userId);
+      allow list: if isOwner(userId);
+      allow create: if isSignedIn() && isOwner(userId) && request.resource.data.userId == userId;
+      allow update: if isExistingOwner(userId) && isOwner(userId) && resource.data.userId == userId;
+      allow delete: if isExistingOwner(userId) && isOwner(userId);
     }
+  }
+
+  // Helper functions
+  function isSignedIn() {
+    return request.auth != null;
+  }
+
+  function isOwner(userId) {
+    return request.auth.uid == userId;
+  }
+
+  function isCreatingOwner(userId) {
+    return isSignedIn() && request.auth.uid == userId && request.resource.data.id == userId;
+  }
+
+  function isExistingOwner(userId) {
+    return isSignedIn() && isOwner(userId) && resource != null;
   }
 }
