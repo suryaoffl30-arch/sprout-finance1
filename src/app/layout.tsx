@@ -3,6 +3,7 @@ import { Toaster } from '@/components/ui/toaster';
 import './globals.css';
 import { ThemeProvider } from '@/components/ThemeProvider';
 import { FirebaseClientProvider } from '@/firebase';
+import { CurrencyProvider } from '@/context/CurrencyContext';
 
 export const metadata: Metadata = {
   title: 'Sprout Finance',
@@ -31,10 +32,12 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <FirebaseClientProvider>
-            {children}
-            <Toaster />
-          </FirebaseClientProvider>
+          <CurrencyProvider>
+            <FirebaseClientProvider>
+              {children}
+              <Toaster />
+            </FirebaseClientProvider>
+          </CurrencyProvider>
         </ThemeProvider>
       </body>
     </html>

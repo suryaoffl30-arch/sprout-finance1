@@ -5,8 +5,10 @@ import { Button } from '@/components/ui/button';
 import { Banknote, BrainCircuit, CreditCard, Landmark, PiggyBank, PlusCircle, Shield, Umbrella } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import Link from 'next/link';
+import { useCurrency } from '@/context/CurrencyContext';
 
 export default function HomePage() {
+  const { currency } = useCurrency();
   return (
     <div className="p-4 md:p-6 space-y-6">
       <header>
@@ -36,9 +38,9 @@ export default function HomePage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-bold">₹12,450.00</p>
+            <p className="text-2xl font-bold">{currency.symbol}12,450.00</p>
             <Progress value={60} className="mt-2 h-2" />
-            <p className="text-xs text-muted-foreground mt-1">60% of your ₹20,000 goal</p>
+            <p className="text-xs text-muted-foreground mt-1">60% of your {currency.symbol}20,000 goal</p>
           </CardContent>
         </Card>
         <Card>
@@ -48,7 +50,7 @@ export default function HomePage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-bold">₹5,800.00</p>
+            <p className="text-2xl font-bold">{currency.symbol}5,800.00</p>
             <Progress value={80} className="mt-2 h-2" />
             <p className="text-xs text-muted-foreground mt-1">80% of 3-month expenses covered</p>
           </CardContent>
@@ -60,8 +62,8 @@ export default function HomePage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-bold">₹52,100.00</p>
-            <p className="text-xs text-muted-foreground mt-1">Projected to grow to ₹1.2M</p>
+            <p className="text-2xl font-bold">{currency.symbol}52,100.00</p>
+            <p className="text-xs text-muted-foreground mt-1">Projected to grow to {currency.symbol}1.2M</p>
           </CardContent>
         </Card>
         <Card>
@@ -71,7 +73,7 @@ export default function HomePage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-bold">₹8,500.00</p>
+            <p className="text-2xl font-bold">{currency.symbol}8,500.00</p>
             <p className="text-xs text-muted-foreground mt-1">Remaining balance</p>
           </CardContent>
         </Card>

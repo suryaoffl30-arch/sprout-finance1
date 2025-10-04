@@ -20,6 +20,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
+import { useCurrency } from "@/context/CurrencyContext";
 
 const initialLoans = [
     {
@@ -57,6 +58,7 @@ export default function LoansPage() {
   const [loans, setLoans] = useState(initialLoans);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingLoan, setEditingLoan] = useState<Loan | null>(null);
+  const { currency } = useCurrency();
 
   const totalRemaining = loans.reduce((acc, loan) => acc + loan.remainingBalance, 0);
 
@@ -117,7 +119,7 @@ export default function LoansPage() {
             <CardTitle>Total Loan Balance</CardTitle>
         </CardHeader>
         <CardContent>
-            <p className="text-3xl font-bold">₹{totalRemaining.toLocaleString()}</p>
+            <p className="text-3xl font-bold">{currency.symbol}{totalRemaining.toLocaleString()}</p>
             <p className="text-sm text-muted-foreground">Across {loans.length} loans</p>
         </CardContent>
       </Card>
@@ -133,6 +135,7 @@ export default function LoansPage() {
 }
 
 function LoanCard({ loan, onEdit, onDelete }: { loan: Loan; onEdit: () => void; onDelete: () => void; }) {
+    const { currency } = useCurrency();
     const progress = ((loan.totalAmount - loan.remainingBalance) / loan.totalAmount) * 100;
     return (
         <Card>
@@ -161,8 +164,8 @@ function LoanCard({ loan, onEdit, onDelete }: { loan: Loan; onEdit: () => void; 
             </CardHeader>
             <CardContent>
                 <div className="flex justify-between items-baseline">
-                     <p className="text-2xl font-bold">₹{loan.remainingBalance.toLocaleString()}</p>
-                     <p className="text-xs text-muted-foreground">of ₹{loan.totalAmount.toLocaleString()}</p>
+                     <p className="text-2xl font-bold">{currency.symbol}{loan.remainingBalance.toLocaleString()}</p>
+                     <p className="text-xs text-muted-foreground">of {currency.symbol}{loan.totalAmount.toLocaleString()}</p>
                 </div>
                 <Progress value={progress} className="mt-2 h-2" />
                  <p className="text-xs text-muted-foreground mt-2">Started on: {format(loan.startDate, 'PPP')}</p>
@@ -174,7 +177,7 @@ function LoanCard({ loan, onEdit, onDelete }: { loan: Loan; onEdit: () => void; 
                 </div>
                  <div className="flex items-center gap-1">
                     <DollarSign className="h-3 w-3" />
-                    <span>₹{(loan.totalAmount - loan.remainingBalance).toLocaleString()} paid</span>
+                    <span>{currency.symbol}{(loan.totalAmount - loan.remainingBalance).toLocaleString()} paid</span>
                 </div>
             </CardFooter>
         </Card>

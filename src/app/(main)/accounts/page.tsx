@@ -3,9 +3,11 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { useCurrency } from "@/context/CurrencyContext";
 import { Banknote, CreditCard, Landmark, MoreVertical, Plus } from "lucide-react";
 
 export default function AccountsPage() {
+  const { currency } = useCurrency();
   return (
     <div className="p-4 md:p-6 space-y-6">
       <header className="flex items-center justify-between">
@@ -27,14 +29,14 @@ export default function AccountsPage() {
             icon={<Landmark className="h-8 w-8 text-primary" />}
             name="Primary Savings"
             bank="Sprout Bank - 1234"
-            balance="₹12,450.00"
+            balance={`${currency.symbol}12,450.00`}
           />
           <Separator />
           <AccountItem
             icon={<Banknote className="h-8 w-8 text-accent" />}
             name="Spending Account"
             bank="Growth Bank - 5678"
-            balance="₹1,230.50"
+            balance={`${currency.symbol}1,230.50`}
           />
         </CardContent>
       </Card>

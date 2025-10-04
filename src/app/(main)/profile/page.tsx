@@ -4,7 +4,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
-import { Bell, ChevronRight, CircleUserRound, FolderDown, LogOut, Palette, Shield, Mail, Phone, Plus } from "lucide-react";
+import { Bell, ChevronRight, CircleUserRound, FolderDown, LogOut, Palette, Shield, Mail, Phone, Plus, Coins } from "lucide-react";
 import Link from "next/link";
 import { useTheme } from "next-themes";
 import { useAuth, useUser } from '@/firebase';
@@ -12,6 +12,8 @@ import { signOut } from "firebase/auth";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { useCurrency } from "@/context/CurrencyContext";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 function SvgGoogleIcon() {
   return (
@@ -39,6 +41,7 @@ function SvgGoogleIcon() {
 
 const settings = [
     { id: "theme", icon: Palette, title: "Theme", description: "Light / Dark Mode" },
+    { id: "currency", icon: Coins, title: "Currency Format", description: "Select your currency" },
     { id: "notifications", icon: Bell, title: "Notifications", description: "Manage alerts" },
     { id: "security", icon: Shield, title: "Security", description: "Password, 2FA" },
     { id: "backup", icon: FolderDown, title: "Backup & Restore", description: "Google Drive sync" }
@@ -50,6 +53,7 @@ export default function ProfilePage() {
   const { user } = useUser();
   const router = useRouter();
   const [isAuthDialogOpen, setIsAuthDialogOpen] = useState(false);
+  const [isCurrencyDialogOpen, setIsCurrencyDialogOpen] = useState(false);
 
   const handleSignOut = () => {
     signOut(auth).then(() => {
@@ -139,7 +143,7 @@ export default function ProfilePage() {
         <CardContent className="p-0">
           <ul className="divide-y">
             {settings.map((item) => (
-                <li key={item.title} className="p-4 flex items-center justify-between hover:bg-muted/50 transition-colors cursor-pointer">
+                <li key={item.title} onClick={() => item.id === 'currency' && setIsCurrencyDialogOpen(true)} className="p-4 flex items-center justify-between hover:bg-muted/50 transition-colors cursor-pointer">
                     <div className="flex items-center gap-4">
                         <item.icon className="h-5 w-5 text-muted-foreground" />
                         <div>
@@ -151,16 +155,65 @@ export default function ProfilePage() {
                         checked={theme === 'dark'}
                         onCheckedChange={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
                         aria-label="Toggle dark mode"
-                    /> : item.id === "notifications" ? <Switch /> : <ChevronRight className="h-5 w-5 text-muted-foreground" />}
+                    /> : item.id === "notifications" ? <Switch /> : item.id === "currency" ? <CurrencyDisplay /> : <ChevronRight className="h-5 w-5 text-muted-foreground" />}
                 </li>
             ))}
           </ul>
         </CardContent>
       </Card>
+      <CurrencyDialog isOpen={isCurrencyDialogOpen} onOpenChange={setIsCurrencyDialogOpen} />
       
       <Button variant="destructive" className="w-full" onClick={handleSignOut}>
           <LogOut className="mr-2 h-4 w-4" /> Sign Out
       </Button>
     </div>
   );
+}
+
+function CurrencyDisplay() {
+    const { currency } = useCurrency();
+    return (
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <span>{currency.symbol}</span>
+            <span>({currency.code})</span>
+            <ChevronRight className="h-5 w-5" />
+        </div>
+    )
+}
+
+function CurrencyDialog({ isOpen, onOpenChange }: { isOpen: boolean, onOpenChange: (open: boolean) => void }) {
+    const { setCurrency, currencies, currency: currentCurrency } = useCurrency();
+
+    const handleCurrencySelect = (currencyCode: string) => {
+        setCurrency(currencyCode);
+        onOpenChange(false);
+    }
+
+    return (
+        <Dialog open={isOpen} onOpenChange={onOpenChange}>
+            <DialogContent className="sm:max-w-[425px]">
+                <DialogHeader>
+                    <DialogTitle>Select Currency</DialogTitle>
+                    <DialogDescription>
+                        Choose your preferred currency. This will be updated across the app.
+                    </DialogDescription>
+                </DialogHeader>
+                <ScrollArea className="h-72">
+                    <div className="space-y-2 p-1">
+                    {currencies.map((c) => (
+                        <Button
+                            key={c.code}
+                            variant={currentCurrency.code === c.code ? "default" : "ghost"}
+                            className="w-full justify-start"
+                            onClick={() => handleCurrencySelect(c.code)}
+                        >
+                            <span className="font-bold w-10">{c.symbol}</span>
+                            <span>{c.name} ({c.code})</span>
+                        </Button>
+                    ))}
+                    </div>
+                </ScrollArea>
+            </DialogContent>
+        </Dialog>
+    )
 }

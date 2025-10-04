@@ -2,6 +2,7 @@
 import * as React from 'react';
 import { Pie, PieChart } from 'recharts';
 import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLegendContent } from '@/components/ui/chart';
+import { useCurrency } from '@/context/CurrencyContext';
 
 const chartData = [
   { category: 'Food', amount: 850, fill: 'var(--color-food)' },
@@ -13,7 +14,7 @@ const chartData = [
 
 const chartConfig = {
   amount: {
-    label: 'Amount (₹)',
+    label: 'Amount',
   },
   food: {
     label: 'Food',
@@ -38,9 +39,12 @@ const chartConfig = {
 };
 
 export default function CategoryChart() {
+  const { currency } = useCurrency();
   const total = React.useMemo(() => {
     return chartData.reduce((acc, curr) => acc + curr.amount, 0);
   }, []);
+
+  chartConfig.amount.label = `Amount (${currency.symbol})`;
 
   return (
     <ChartContainer
@@ -72,7 +76,7 @@ export default function CategoryChart() {
           className="fill-foreground text-center"
         >
           <tspan x="50%" dy="-0.6em" className="text-2xl font-bold">
-            ₹{total.toLocaleString()}
+            {currency.symbol}{total.toLocaleString()}
           </tspan>
           <tspan x="50%" dy="1.2em" className="text-xs text-muted-foreground">
             Total Spent

@@ -8,6 +8,7 @@ import { ArrowUp, MoreHorizontal } from "lucide-react";
 import ExpenseChart from "@/components/charts/ExpenseChart";
 import CategoryChart from "@/components/charts/CategoryChart";
 import { cn } from "@/lib/utils";
+import { useCurrency } from "@/context/CurrencyContext";
 
 export default function AnalysisPage() {
   return (
@@ -44,6 +45,7 @@ export default function AnalysisPage() {
 }
 
 function AnalysisContent({ period }: { period: string }) {
+  const { currency } = useCurrency();
   const isPositive = true;
   const percentage = '7.2';
 
@@ -52,10 +54,10 @@ function AnalysisContent({ period }: { period: string }) {
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium">Total Spends</CardTitle>
-          <span className="text-muted-foreground">₹</span>
+          <span className="text-muted-foreground">{currency.symbol}</span>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">₹4,295.30</div>
+          <div className="text-2xl font-bold">{currency.symbol}4,295.30</div>
           <p className="text-xs text-muted-foreground flex items-center">
             <span className={cn("flex items-center mr-1", isPositive ? "text-primary" : "text-destructive")}>
               {isPositive && <ArrowUp className="h-4 w-4" />}

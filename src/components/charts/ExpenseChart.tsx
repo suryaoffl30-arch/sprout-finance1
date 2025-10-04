@@ -2,6 +2,7 @@
 
 import { Bar, BarChart, XAxis, YAxis } from 'recharts';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
+import { useCurrency } from '@/context/CurrencyContext';
 
 const chartData = [
   { month: 'Jan', expense: 1860, budget: 2200 },
@@ -12,18 +13,21 @@ const chartData = [
   { month: 'Jun', expense: 2140, budget: 2600 },
 ];
 
-const chartConfig = {
-  expense: {
-    label: 'Expense',
-    color: 'hsl(var(--accent))',
-  },
-  budget: {
-    label: 'Budget',
-    color: 'hsl(var(--primary))',
-  },
-};
+
 
 export default function ExpenseChart() {
+  const { currency } = useCurrency();
+  const chartConfig = {
+    expense: {
+      label: 'Expense',
+      color: 'hsl(var(--accent))',
+    },
+    budget: {
+      label: 'Budget',
+      color: 'hsl(var(--primary))',
+    },
+  };
+
   return (
     <ChartContainer config={chartConfig} className="h-[200px] w-full">
         <BarChart accessibilityLayer data={chartData} margin={{ top: 20, right: 20, left: -10, bottom: 0 }}>
@@ -38,7 +42,7 @@ export default function ExpenseChart() {
                 tickLine={false}
                 axisLine={false}
                 tickMargin={10}
-                tickFormatter={(value) => `₹${value / 1000}k`}
+                tickFormatter={(value) => `${currency.symbol}${value / 1000}k`}
             />
             <ChartTooltip
                 cursor={false}
