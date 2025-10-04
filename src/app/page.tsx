@@ -158,8 +158,8 @@ export default function LoginPage() {
                   {isSigningIn ? "Don't have an account? Sign Up" : 'Already have an account? Sign In'}
                 </Button>
             </div>
-             <div className="mt-4 text-center text-sm">
-              <Button variant="link" onClick={handleAnonymousSignIn} className="underline text-muted-foreground hover:text-primary">
+             <div className="mt-4 text-center">
+              <Button variant="link" onClick={handleAnonymousSignIn} className="underline text-muted-foreground hover:text-primary text-base">
                 Be My Guest
               </Button>
             </div>
