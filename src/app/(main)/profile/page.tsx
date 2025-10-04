@@ -4,7 +4,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
-import { Bell, ChevronRight, CircleUserRound, FolderDown, LogOut, Palette, Shield, Mail, Phone, Plus, Coins, Star, Info, FileText, Send, MessageSquareQuestion, FileUp } from "lucide-react";
+import { Bell, ChevronRight, CircleUserRound, FolderDown, LogOut, Palette, Shield, Mail, Phone, Plus, Coins, Star, Info, FileText, Send, MessageCircleQuestion, FileUp } from "lucide-react";
 import Link from "next/link";
 import { useTheme } from "next-themes";
 import { useAuth, useUser } from '@/firebase';
@@ -53,7 +53,7 @@ const aboutItems = [
     { id: "about", icon: Info, title: "About App", description: "App version and details" },
     { id: "privacy", icon: FileText, title: "Privacy Policies", description: "Read our policies" },
     { id: "contact", icon: Send, title: "Contact Us", description: "Get in touch with support" },
-    { id: "faq", icon: MessageSquareQuestion, title: "Feedback and FAQs", description: "Find answers and give feedback" },
+    { id: "faq", icon: MessageCircleQuestion, title: "Feedback and FAQs", description: "Find answers and give feedback" },
 ]
 
 export default function ProfilePage() {
