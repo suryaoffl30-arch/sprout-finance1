@@ -1,3 +1,5 @@
+'use client';
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Banknote, CalendarClock, LifeBuoy, Plus, Repeat, ShieldCheck, TrendingUp } from "lucide-react";
 import Link from 'next/link';
@@ -41,8 +43,7 @@ const features = [
     {
         title: "Card Management",
         description: "Secure and manage your cards.",
-        icon: ShieldCheck,
-        href: "/accounts",
+        icon: "/accounts",
         status: "View"
     }
 ]
