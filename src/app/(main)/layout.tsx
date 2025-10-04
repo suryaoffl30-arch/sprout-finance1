@@ -15,9 +15,9 @@ export default function MainLayout({ children }: { children: ReactNode }) {
       router.push('/');
     }
     // TODO: Add logic to check if user has completed onboarding
-    if (!isUserLoading && user) {
-      router.push('/onboarding');
-    }
+    // if (!isUserLoading && user) {
+    //   router.push('/onboarding');
+    // }
   }, [user, isUserLoading, router]);
   
   if (isUserLoading || !user) {
