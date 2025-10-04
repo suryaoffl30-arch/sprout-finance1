@@ -1,0 +1,318 @@
+{
+  "entities": {
+    "User": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "User",
+      "type": "object",
+      "description": "Represents a user in the Sprout Finance application.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the user."
+        },
+        "email": {
+          "type": "string",
+          "description": "User's email address.",
+          "format": "email"
+        },
+        "phoneNumber": {
+          "type": "string",
+          "description": "User's phone number."
+        },
+        "googleId": {
+          "type": "string",
+          "description": "User's Google ID (if signed up with Google)."
+        },
+        "firstName": {
+          "type": "string",
+          "description": "User's first name."
+        },
+        "lastName": {
+          "type": "string",
+          "description": "User's last name."
+        },
+        "theme": {
+          "type": "string",
+          "description": "User's preferred theme (e.g., light, dark)."
+        },
+        "currencyFormat": {
+          "type": "string",
+          "description": "User's preferred currency format (e.g., USD, EUR)."
+        },
+        "notificationPreferences": {
+          "type": "string",
+          "description": "User's notification preferences (e.g., email, SMS)."
+        }
+      },
+      "required": [
+        "id"
+      ]
+    },
+    "BankAccount": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "BankAccount",
+      "type": "object",
+      "description": "Represents a bank account linked to a user's profile.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the bank account."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to User. (Relationship: User 1:N BankAccount)"
+        },
+        "bankName": {
+          "type": "string",
+          "description": "Name of the bank."
+        },
+        "accountNumber": {
+          "type": "string",
+          "description": "Bank account number."
+        },
+        "debitCardNumber": {
+          "type": "string",
+          "description": "Debit card number associated with the account."
+        },
+        "balance": {
+          "type": "number",
+          "description": "Current balance of the bank account."
+        }
+      },
+      "required": [
+        "id",
+        "userId"
+      ]
+    },
+    "Transaction": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Transaction",
+      "type": "object",
+      "description": "Represents a financial transaction.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the transaction."
+        },
+        "bankAccountId": {
+          "type": "string",
+          "description": "Reference to BankAccount. (Relationship: BankAccount 1:N Transaction)"
+        },
+        "date": {
+          "type": "string",
+          "description": "Date of the transaction.",
+          "format": "date-time"
+        },
+        "amount": {
+          "type": "number",
+          "description": "Amount of the transaction."
+        },
+        "category": {
+          "type": "string",
+          "description": "Category of the transaction (e.g., Food, Shopping, Travel)."
+        },
+        "description": {
+          "type": "string",
+          "description": "Description of the transaction."
+        },
+        "transactionType": {
+          "type": "string",
+          "description": "Type of transaction (income or expense)."
+        }
+      },
+      "required": [
+        "id",
+        "bankAccountId"
+      ]
+    },
+    "Loan": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Loan",
+      "type": "object",
+      "description": "Represents a loan tracked by the user.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the loan."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to User. (Relationship: User 1:N Loan)"
+        },
+        "loanName": {
+          "type": "string",
+          "description": "Name of the loan."
+        },
+        "principalAmount": {
+          "type": "number",
+          "description": "Original principal amount of the loan."
+        },
+        "interestRate": {
+          "type": "number",
+          "description": "Interest rate of the loan."
+        },
+        "loanTermMonths": {
+          "type": "number",
+          "description": "Loan term in months."
+        },
+        "startDate": {
+          "type": "string",
+          "description": "Start date of the loan.",
+          "format": "date-time"
+        },
+        "remainingBalance": {
+          "type": "number",
+          "description": "Remaining balance on the loan."
+        }
+      },
+      "required": [
+        "id",
+        "userId"
+      ]
+    },
+    "AiAdvice": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "AiAdvice",
+      "type": "object",
+      "description": "Represents financial advice provided by the AI.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the advice."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to User. (Relationship: User 1:N AiAdvice)"
+        },
+        "date": {
+          "type": "string",
+          "description": "Date the advice was generated.",
+          "format": "date-time"
+        },
+        "adviceText": {
+          "type": "string",
+          "description": "The text of the financial advice."
+        },
+        "category": {
+          "type": "string",
+          "description": "Category of the advice (e.g., budgeting, saving, investment)."
+        }
+      },
+      "required": [
+        "id",
+        "userId"
+      ]
+    }
+  },
+  "auth": {
+    "providers": [
+      "password",
+      "anonymous"
+    ]
+  },
+  "firestore": {
+    "structure": [
+      {
+        "path": "/users/{userId}",
+        "definition": {
+          "entityName": "User",
+          "schema": {
+            "$ref": "#/backend/entities/User"
+          },
+          "description": "Stores user profile information.  Path-based ownership enforced via the `userId` parameter.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier for the user."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/bankAccounts/{bankAccountId}",
+        "definition": {
+          "entityName": "BankAccount",
+          "schema": {
+            "$ref": "#/backend/entities/BankAccount"
+          },
+          "description": "Stores bank account information for a specific user. Includes denormalized 'userId' for authorization independence.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier for the user."
+            },
+            {
+              "name": "bankAccountId",
+              "description": "The unique identifier for the bank account."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/bankAccounts/{bankAccountId}/transactions/{transactionId}",
+        "definition": {
+          "entityName": "Transaction",
+          "schema": {
+            "$ref": "#/backend/entities/Transaction"
+          },
+          "description": "Stores transaction information for a specific bank account. Includes denormalized 'userId' for authorization independence.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier for the user."
+            },
+            {
+              "name": "bankAccountId",
+              "description": "The unique identifier for the bank account."
+            },
+            {
+              "name": "transactionId",
+              "description": "The unique identifier for the transaction."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/loans/{loanId}",
+        "definition": {
+          "entityName": "Loan",
+          "schema": {
+            "$ref": "#/backend/entities/Loan"
+          },
+          "description": "Stores loan information for a specific user. Includes denormalized 'userId' for authorization independence.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier for the user."
+            },
+            {
+              "name": "loanId",
+              "description": "The unique identifier for the loan."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/aiAdvice/{aiAdviceId}",
+        "definition": {
+          "entityName": "AiAdvice",
+          "schema": {
+            "$ref": "#/backend/entities/AiAdvice"
+          },
+          "description": "Stores AI-generated financial advice for a specific user. Includes denormalized 'userId' for authorization independence.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier for the user."
+            },
+            {
+              "name": "aiAdviceId",
+              "description": "The unique identifier for the AI advice."
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "The Firestore structure is designed to be secure, scalable, and easily debuggable, following the core design principles and strategy mandates. It avoids hierarchical authorization dependencies (`get()` calls) by denormalizing authorization data and uses structural segregation to ensure homogeneous security postures within collections. The structure utilizes path-based ownership and membership maps for access control, making security rules simple and efficient.\n\n**Authorization Independence:**  Each subcollection that depends on a parent's authorization context includes the necessary authorization data within its documents, removing the need for `get()` calls in security rules. For example, `bankAccounts` and all other entities have the `userId` denormalized into them, so we never have to traverse up the tree to validate ownership. This ensures atomic operations are possible.\n\n**Structural Segregation:**  Each collection is dedicated to a specific entity type with consistent security requirements. This simplifies the rules and makes them more maintainable. For example, user data is stored under `/users/{userId}` to ensure that each document in this collection represents a single user's data.\n\n**QAPs Support:**  The structure supports secure `list` operations (QAPs) through path-based ownership. Since each user's data is stored under their own `userId`, listing bankAccounts, transactions, loans, and AI advice can be done securely by scoping the query to the specific user's path, e.g., `/users/{userId}/bankAccounts`.  This ensures that users can only list resources that belong to them.\n\n**Invariants:**  Ownership and timestamps are enforced through security rules, ensuring data integrity.  The `userId` field in subcollections ensures that each resource belongs to the correct user, and security rules can validate this on creation and modification."
+  }
+}

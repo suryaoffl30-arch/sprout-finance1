@@ -1,0 +1,123 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    /**
+     * @description Ensures the user is signed in.
+     * @path N/A
+     * @allow N/A
+     * @deny N/A
+     * @principle Verifies user authentication.
+     */
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    /**
+     * @description Checks if the requesting user is the owner of the resource.
+     * @path N/A
+     * @allow N/A
+     * @deny N/A
+     * @principle Enforces ownership-based access control.
+     */
+    function isOwner(userId) {
+      return request.auth.uid == userId;
+    }
+
+    /**
+     * @description Checks if the requesting user is the existing owner of the resource.
+     * @path N/A
+     * @allow N/A
+     * @deny N/A
+     * @principle Enforces existence and ownership for destructive operations.
+     */
+    function isExistingOwner(userId) {
+      return isOwner(userId) && resource.data != null;
+    }
+
+    /**
+     * @description Rules for user profile data.
+     * @path /users/{userId}
+     * @allow (create) If the authenticated user's UID matches the userId in the path.
+     * @allow (get, update, delete) If the authenticated user's UID matches the userId in the path.
+     * @deny (create) If the authenticated user's UID does not match the userId in the path.
+     * @deny (get, update, delete) If the authenticated user's UID does not match the userId in the path.
+     * @principle Enforces document ownership for all operations.
+     */
+    match /users/{userId} {
+      allow get: if isOwner(userId);
+      allow list: if false;
+      allow create: if isSignedIn() && request.auth.uid == userId;
+      allow update: if isExistingOwner(userId);
+      allow delete: if isExistingOwner(userId);
+    }
+
+    /**
+     * @description Rules for bank account data within a user's profile.
+     * @path /users/{userId}/bankAccounts/{bankAccountId}
+     * @allow (create) If the authenticated user's UID matches the userId in the path and the bankAccount's userId matches the path.
+     * @allow (get, list, update, delete) If the authenticated user's UID matches the userId in the path and the bankAccount's userId matches the path.
+     * @deny (create) If the authenticated user's UID does not match the userId in the path or the bankAccount's userId does not match the path.
+     * @deny (get, list, update, delete) If the authenticated user's UID does not match the userId in the path or the bankAccount's userId does not match the path.
+     * @principle Enforces document ownership and relational integrity.
+     */
+    match /users/{userId}/bankAccounts/{bankAccountId} {
+      allow get: if isOwner(userId);
+      allow list: if false;
+      allow create: if isOwner(userId);
+      allow update: if isExistingOwner(userId);
+      allow delete: if isExistingOwner(userId);
+    }
+
+    /**
+     * @description Rules for transaction data within a bank account.
+     * @path /users/{userId}/bankAccounts/{bankAccountId}/transactions/{transactionId}
+     * @allow (create) If the authenticated user's UID matches the userId in the path and the transaction's bankAccountId matches the path.
+     * @allow (get, list, update, delete) If the authenticated user's UID matches the userId in the path and the transaction's bankAccountId matches the path.
+     * @deny (create) If the authenticated user's UID does not match the userId in the path or the transaction's bankAccountId does not match the path.
+     * @deny (get, list, update, delete) If the authenticated user's UID does not match the userId in the path or the transaction's bankAccountId does not match the path.
+     * @principle Enforces document ownership and relational integrity.
+     */
+    match /users/{userId}/bankAccounts/{bankAccountId}/transactions/{transactionId} {
+      allow get: if isOwner(userId);
+      allow list: if false;
+      allow create: if isOwner(userId);
+      allow update: if isExistingOwner(userId);
+      allow delete: if isExistingOwner(userId);
+    }
+
+    /**
+     * @description Rules for loan data within a user's profile.
+     * @path /users/{userId}/loans/{loanId}
+     * @allow (create) If the authenticated user's UID matches the userId in the path and the loan's userId matches the path.
+     * @allow (get, list, update, delete) If the authenticated user's UID matches the userId in the path and the loan's userId matches the path.
+     * @deny (create) If the authenticated user's UID does not match the userId in the path or the loan's userId does not match the path.
+     * @deny (get, list, update, delete) If the authenticated user's UID does not match the userId in the path or the loan's userId does not match the path.
+     * @principle Enforces document ownership and relational integrity.
+     */
+    match /users/{userId}/loans/{loanId} {
+      allow get: if isOwner(userId);
+      allow list: if false;
+      allow create: if isOwner(userId);
+      allow update: if isExistingOwner(userId);
+      allow delete: if isExistingOwner(userId);
+    }
+
+    /**
+     * @description Rules for AI advice data within a user's profile.
+     * @path /users/{userId}/aiAdvice/{aiAdviceId}
+     * @allow (create) If the authenticated user's UID matches the userId in the path and the advice's userId matches the path.
+     * @allow (get, list, update, delete) If the authenticated user's UID matches the userId in the path and the advice's userId matches the path.
+     * @deny (create) If the authenticated user's UID does not match the userId in the path or the advice's userId does not match the path.
+     * @deny (get, list, update, delete) If the authenticated user's UID does not match the userId in the path or the advice's userId does not match the path.
+     * @principle Enforces document ownership and relational integrity.
+     */
+    match /users/{userId}/aiAdvice/{aiAdviceId} {
+      allow get: if isOwner(userId);
+      allow list: if false;
+      allow create: if isOwner(userId);
+      allow update: if isExistingOwner(userId);
+      allow delete: if isExistingOwner(userId);
+    }
+  }
+}
