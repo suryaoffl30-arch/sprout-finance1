@@ -1,19 +1,23 @@
+'use client';
+
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
 import { Bell, ChevronRight, CircleUserRound, FolderDown, LogOut, Palette, Shield } from "lucide-react";
 import Link from "next/link";
+import { useTheme } from "next-themes";
 
 const settings = [
-    { icon: Palette, title: "Theme", description: "Light / Dark Mode" },
-    { icon: Bell, title: "Notifications", description: "Manage alerts" },
-    { icon: Shield, title: "Security", description: "Password, 2FA" },
-    { icon: FolderDown, title: "Backup & Restore", description: "Google Drive sync" }
+    { id: "theme", icon: Palette, title: "Theme", description: "Light / Dark Mode" },
+    { id: "notifications", icon: Bell, title: "Notifications", description: "Manage alerts" },
+    { id: "security", icon: Shield, title: "Security", description: "Password, 2FA" },
+    { id: "backup", icon: FolderDown, title: "Backup & Restore", description: "Google Drive sync" }
 ]
 
 export default function ProfilePage() {
+  const { theme, setTheme } = useTheme();
+
   return (
     <div className="p-4 md:p-6 space-y-6">
       <header>
@@ -36,7 +40,7 @@ export default function ProfilePage() {
       <Card>
         <CardContent className="p-0">
           <ul className="divide-y">
-            {settings.map((item, index) => (
+            {settings.map((item) => (
                 <li key={item.title} className="p-4 flex items-center justify-between hover:bg-muted/50 transition-colors cursor-pointer">
                     <div className="flex items-center gap-4">
                         <item.icon className="h-5 w-5 text-muted-foreground" />
@@ -45,7 +49,11 @@ export default function ProfilePage() {
                             <p className="text-sm text-muted-foreground">{item.description}</p>
                         </div>
                     </div>
-                    {item.title === "Theme" || item.title === "Notifications" ? <Switch /> : <ChevronRight className="h-5 w-5 text-muted-foreground" />}
+                    {item.id === "theme" ? <Switch
+                        checked={theme === 'dark'}
+                        onCheckedChange={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                        aria-label="Toggle dark mode"
+                    /> : item.id === "notifications" ? <Switch /> : <ChevronRight className="h-5 w-5 text-muted-foreground" />}
                 </li>
             ))}
           </ul>
